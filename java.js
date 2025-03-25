@@ -80,4 +80,5 @@ document.getElementById('patientForm').addEventListener('submit', function(e) {
 
 function removePatient(cpf) {
     queue.removePatientByCPF(cpf);
+    
 }

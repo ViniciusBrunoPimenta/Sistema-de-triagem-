@@ -70,12 +70,12 @@
 
                 <div class="form-group">
                     <label for="temperature">Temperatura (°C):</label>
-                    <input type="number" id="temperature" step="0.1" min="35" max="43">
+                    <input type="number" id="temperature" step="0.1" min="30" max="50">
                 </div>
 
                 <div class="form-group">
                     <label for="bloodPressure">Pressão Arterial:</label>
-                    <input type="text" id="bloodPressure" placeholder="Ex: 120/80">
+                    <input type="text" id="bloodPressure" placeholder="Ex: 12/8">
                 </div>
 
                 <div class="form-group">
@@ -172,5 +172,65 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        let startTime; // Variável para armazenar o tempo de início
+
+        // Tempos médios de espera em minutos para cada classificação de risco
+        const averageWaitTimes = {
+            "1": 5,  // Emergência
+            "2": 10, // Muito Urgente
+            "3": 20, // Urgente
+            "4": 30, // Pouco Urgente
+            "5": 60  // Não Urgente
+        };
+
+        document.getElementById('patientForm').addEventListener('focusin', function() {
+            startTime = Date.now(); // Captura o tempo quando o formulário é focado
+        });
+
+        document.getElementById('patientForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Impede o envio do formulário
+
+            // Captura os dados do formulário
+            const name = document.getElementById('name').value;
+            const riskLevel = document.getElementById('riskLevel').value;
+
+            // Cria um novo elemento para a fila de atendimento
+            const patientQueue = document.getElementById('patientQueue');
+            const patientItem = document.createElement('div');
+            patientItem.textContent = `Paciente: ${name}, Classificação de Risco: ${riskLevel}`;
+            patientQueue.appendChild(patientItem);
+
+            // Atualiza o contador de pacientes na fila
+            const patientCount = document.getElementById('patientCount');
+            patientCount.textContent = parseInt(patientCount.textContent) + 1; // Incrementa o contador
+
+            // Atualiza as estatísticas
+            const todayAttendances = document.getElementById('todayAttendances');
+            todayAttendances.textContent = parseInt(todayAttendances.textContent) + 1; // Incrementa atendimentos
+
+            if (riskLevel === "1") { // Se for emergência
+                const emergencyCases = document.getElementById('emergencyCases');
+                emergencyCases.textContent = parseInt(emergencyCases.textContent) + 1; // Incrementa casos de emergência
+            }
+
+            // Atualiza o tempo médio de espera
+            const averageWaitTime = document.getElementById('averageWaitTime');
+            averageWaitTime.textContent = averageWaitTimes[riskLevel] + ' min'; // Define o tempo médio de espera
+
+            // Calcula o tempo de preenchimento do formulário
+            const endTime = Date.now();
+            const timeTaken = (endTime - startTime) / 1000; // Tempo em segundos
+
+            // Atualiza o tempo médio de atendimento
+            const averageAttendanceTime = document.getElementById('averageAttendanceTime');
+            const currentAverage = parseFloat(averageAttendanceTime.textContent) || 0;
+            const newAverage = ((currentAverage * (parseInt(todayAttendances.textContent) - 1)) + timeTaken) / parseInt(todayAttendances.textContent);
+            averageAttendanceTime.textContent = newAverage.toFixed(2) + ' seg'; // Atualiza o tempo médio
+
+            // Limpa o formulário após a submissão
+            this.reset();
+        });
+    </script>
 </body>
 </html>
